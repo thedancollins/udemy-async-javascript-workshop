@@ -4,15 +4,21 @@ Create a promise version of the async readFile function
 
 ```js
 const fs = require("fs");
+const util = require("util");
+const readFile = util.promisify(fs.readFile);
 
-function readFile(filename, encoding) {
-  fs.readFile(filename, encoding, (err, data) => {
-    //TODO
-  });
-}
-readFile("./files/demofile.txt", "utf-8")
-    .then(...)
-});
+/*function readFile(filename, encoding) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) reject(err)
+      resolve(data);
+    });
+  })
+}*/
+readFile("./files/demofile.txt", "utf-8").then(
+  val => console.log("File read: ", val),
+  err => console.log("Failed to read file:", err)
+);
 ```
 
 # Question 2
@@ -24,8 +30,50 @@ const fs = require("fs");
 const zlib = require("zlib");
 
 function zlibPromise(data) {
-  zlib.gzip(data, (error, result) => {
-    //TODO
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (error, result) => {
+      if (error) reject(error);
+      resolve(data);
+    });
+  });
+}
+
+function readFile(filename, encoding) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+}
+
+readFile("./files/demofile.txt", "utf-8").then(
+  data => {
+    zlibPromise(data).then(
+      res => console.log(res),
+      err => console.error("Failed", err)
+    );
+  },
+  err => {
+    console.error("Failed2:", err);
+  }
+);
+```
+
+# Question 3
+
+Convert the previous code so that it now chains the promise as well.
+
+```js
+const fs = require("fs");
+const zlib = require("zlib");
+
+function zlibPromise(data) {
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (error, result) => {
+      if (error) reject(error);
+      resolve(data);
+    });
   });
 }
 
@@ -39,13 +87,23 @@ function readFile(filename, encoding) {
 }
 
 readFile("./files/demofile.txt", "utf-8")
-    .then(...) // --> Load it then zip it and then print it to screen
-});
+  .then(
+    data => {
+      return zlibPromise(data);
+    },
+    err => {
+      console.error("Failed2:", err);
+    }
+  )
+  .then(
+    res => {
+      console.log(res);
+    },
+    err => {
+      console.error("Failed", err);
+    }
+  );
 ```
-
-# Question 3
-
-Convert the previous code so that it now chains the promise as well.
 
 # Question 4
 
