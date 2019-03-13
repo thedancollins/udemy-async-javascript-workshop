@@ -179,12 +179,29 @@ function publish() {
   return new Promise(resolve => setTimeout(resolve, 2000, { status: 403 }));
 }
 
-function timeout(sleep) {
-  return new Promise((resolve, reject) => setTimeout(reject, sleep, "timeout"));
+function safePublish() {
+  return publish().then(res => { if (res.status ==== 403 ) {  return authenticate();
+  }
+  resturn res;});
 }
 
-Promise.race( [publish(), timeout(3000)])
-  .then(...)
-  .then(...)
-  .catch(...);
+function timeout(sleep) {
+  return new Promise((_resolve_, reject) =>
+    setTimeout(reject, sleep, "timeout")
+  );
+}
+
+Promise.race([().(), timeout(3000)])
+  .then(_value_ => {
+    console.log("Published");
+  })
+  .catch(err => {
+    if (err === "timeout") {
+      console.error("Timeout Failure:", err);
+    }
+    else {
+      console.error("Unknown Failure::", err);
+    }
+
+  });
 ```
