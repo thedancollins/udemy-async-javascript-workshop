@@ -109,16 +109,59 @@ readFile("./files/demofile.txt", "utf-8")
 
 Convert the previous code so that it now handles errors using the catch handler
 
+```js
+const fs = require("fs");
+const zlib = require("zlib");
+
+function zlibPromise(data) {
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (error, result) => {
+      if (error) reject(error);
+      resolve(data);
+    });
+  });
+}
+
+function readFile(filename, encoding) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+}
+
+readFile("./files/demofile2.txt", "utf-8")
+  .then(data => {
+    return zlibPromise(data);
+  })
+  .then(res => {
+    console.log(res);
+  })
+  .catch(err => {
+    console.error("Failed: ", err);
+  });
+```
+
 # Question 5
 
 Create some code that tries to read from disk a file and times out if it takes longer than 1 seconds, use `Promise.race`
 
 ```js
 function readFileFake(sleep) {
-  return new Promise(resolve => setTimeout(resolve, sleep));
+  return new Promise(resolve => setTimeout(resolve, sleep, "Big File"));
+}
+function readFileTimeoutFake(sleep) {
+  return new Promise((_, reject) => setTimeout(reject, sleep, "Timeout"));
 }
 
-readFileFake(5000); // This resolves a promise after 5 seconds, pretend it's a large file being read from disk
+Promise.race([readFileFake(5000), readFileTimeoutFake(1000)])
+  .then(value => {
+    console.log("Big File Donwloaded", value);
+  })
+  .catch(err => {
+    console.log("Big File was not Downloaded due to: ", err);
+  });
 ```
 
 # Question 6
