@@ -12,8 +12,17 @@ promise 2
 console.log("start");
 const interval = setInterval(() => {
   console.log("setInterval 1");
+  Promise.resolve()
+    .then(() => {
+      debugger;
+      console.log("promise 1");
+    })
+    .then(() => {
+      debugger;
+      console.log("promise 2");
+    }, 0);
   clearInterval(interval);
-}, 0);
+});
 console.log("end");
 ```
 
@@ -30,3 +39,37 @@ processNextTick 1
 setImmediate 1
 promise 3
 promise 4
+
+```js
+console.log("start");
+const interval = setInterval(() => {
+  console.log("setInterval 1");
+  Promise.resolve()
+    .then(() => {
+      debugger;
+      console.log("promise 1");
+    })
+    .then(() => {
+      debugger;
+      console.log("promise 2");
+    }, 0);
+  process.nextTick(() => {
+    setImmediate(() => {
+      console.log("processNextTick 1");
+      console.log("setImmediate 1");
+      Promise.resolve()
+        .then(() => {
+          debugger;
+          console.log("promise 3");
+        })
+        .then(() => {
+          debugger;
+          console.log("promise 4");
+        });
+    });
+  });
+
+  clearInterval(interval);
+});
+console.log("end");
+```
