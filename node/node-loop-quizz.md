@@ -52,7 +52,25 @@ const interval = setInterval(() => {
     .then(() => {
       debugger;
       console.log("promise 2");
+      setImmediate(() => {
+        console.log("setImmediate 1");
+        Promise.resolve()
+          .then(() => {
+            debugger;
+            console.log("promise 3");
+          })
+          .then(() => {
+            debugger;
+            console.log("promise 4");
+            clearInterval(interval);
+          });
+      });
+      process.nextTick(() => {
+        console.log("processNextTick 1");
+      });
     }, 0);
+
+  /* This works but it is cheating - need to understand that process.nextTick is going to run BEFORE the setImmediate
   process.nextTick(() => {
     setImmediate(() => {
       console.log("processNextTick 1");
@@ -68,8 +86,8 @@ const interval = setInterval(() => {
         });
     });
   });
-
-  clearInterval(interval);
+  
+  clearInterval(interval);*/
 });
 console.log("end");
 ```
