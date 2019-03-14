@@ -180,9 +180,9 @@ function publish() {
 }
 
 function safePublish() {
-  return publish().then(res => { if (res.status ==== 403 ) {  return authenticate();
+  return publish().then(res => { if (res.status === 403 ) {  return authenticate();
   }
-  resturn res;});
+  return res;});
 }
 
 function timeout(sleep) {
@@ -191,7 +191,7 @@ function timeout(sleep) {
   );
 }
 
-Promise.race([().(), timeout(3000)])
+Promise.race([safePublish(), timeout(5000)])
   .then(_value_ => {
     console.log("Published");
   })
